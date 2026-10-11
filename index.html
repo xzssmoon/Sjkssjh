@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Для Настеньки 💕</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;600;700&family=Marck+Script&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Comfortaa', cursive;
+            background: linear-gradient(135deg, #ffe0ec 0%, #ffd1e3 30%, #ffc4dc 60%, #ffb8d4 100%);
+            color: #6b2c44;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            user-select: none;
+        }
+
+        /* ===== ПАДАЮЩИЕ СЛОВА ===== */
+        .falling-words-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        .falling-word {
+            position: absolute;
+            top: -60px;
+            font-family: 'Marck Script', cursive;
+            font-size: 2rem;
+            color: #d63384;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 1),
+                         0 0 15px rgba(255, 255, 255, 0.8),
+                         0 0 25px rgba(255, 182, 193, 0.9);
+            opacity: 0;
+            white-space: nowrap;
+            animation: fall linear forwards;
+            font-weight: 600;
+            z-index: 100;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-60px) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            85% { opacity: 1; }
+            100% {
+                transform: translateY(105vh) translateX(60px) rotate(18deg);
+                opacity: 0;
+            }
+        }
+
+        /* ===== ВСПЛЫВАЮЩИЕ СЛОВА ===== */
+        .pop-word {
+            position: fixed;
+            font-family: 'Marck Script', cursive;
+            font-size: 1.8rem;
+            color: #ff2d87;
+            text-shadow: 0 0 12px rgba(255, 255, 255, 1),
+                         0 0 25px rgba(255, 105, 180, 0.9),
+                         0 0 40px rgba(255, 182, 193, 0.7);
+            pointer-events: none;
+            z-index: 200;
+            white-space: nowrap;
+            animation: popWord 2.5s ease-out forwards;
+            font-weight: 700;
+        }
+
+        @keyframes popWord {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.3) rotate(-10deg);
+            }
+            20% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.15) rotate(3deg);
+            }
+            35% {
+                transform: translate(-50%, -50%) scale(1) rotate(0deg);
+            }
+            75% {
+                opacity: 1;
+                transform: translate(-50%, -80%) scale(1) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -180%) scale(0.8) rotate(-5deg);
+            }
+        }
+
+        /* ===== ВЗРЫВ СЕРДЕЧЕК ===== */
+        .heart-burst {
+            position: fixed;
+            font-size: 1.8rem;
+            pointer-events: none;
+            z-index: 250;
+            animation: burst 1.6s ease-out forwards;
+            will-change: transform, opacity;
+        }
+
+        @keyframes burst {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(0.3) rotate(0deg);
+            }
+            60% { opacity: 1; }
+            100% {
+                opacity: 0;
+                transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(1.3) rotate(var(--rot));
+            }
+        }
+
+        /* ===== ПЛАВАЮЩИЕ СЕРДЕЧКИ ФОНА ===== */
+        .bg-heart {
+            position: fixed;
+            font-size: 1.5rem;
+            opacity: 0.2;
+            pointer-events: none;
+            z-index: 1;
+            animation: floatUp linear infinite;
+        }
+
+        @keyframes floatUp {
+            from {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% { opacity: 0.25; }
+            90% { opacity: 0.25; }
+            to {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* ===== КНИГА ===== */
+        .book {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 600px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 15px;
+        }
+
+        .book-header {
+            text-align: center;
+            margin-bottom: 8px;
+            flex-shrink: 0;
+        }
+
+        .book-header h1 {
+            font-family: 'Marck Script', cursive;
+            font-size: clamp(1.6rem, 5.5vw, 2.4rem);
+            color: #c2185b;
+            text-shadow: 1px 1px 10px rgba(255, 255, 255, 0.9);
+        }
+
+        .pages {
+            position: relative;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 0;
+        }
+
+        .page {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            opacity: 0;
+            transform: translateX(60px) scale(0.95);
+            pointer-events: none;
+            transition: opacity 0.55s ease, transform 0.55s ease;
+            padding: 5px;
+            overflow-y: auto;
+        }
+
+        .page.active {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .page.exit-left {
+            opacity: 0;
+            transform: translateX(-60px) scale(0.95);
+        }
+
+        .page.exit-right {
+            opacity: 0;
+            transform: translateX(60px) scale(0.95);
+        }
+
+        /* Карточка с фото и текстом */
+        .photo-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 26px;
+            padding: 15px 18px 20px;
+            box-shadow: 0 20px 50px rgba(214, 51, 132, 0.28),
+                        0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            max-width: 100%;
+            max-height: 100%;
+            transition: transform 0.4s ease;
+        }
+
+        .photo-card img {
+            width: 100%;
+            max-height: 38vh;
+            object-fit: cover;
+            border-radius: 18px;
+            box-shadow: 0 10px 28px rgba(214, 51, 132, 0.3);
+            display: block;
+        }
+
+        .page-title {
+            font-family: 'Marck Script', cursive;
+            font-size: clamp(1.3rem, 4.5vw, 1.8rem);
+            color: #c2185b;
+            text-align: center;
+            line-height: 1.3;
+            text-shadow: 1px 1px 8px rgba(255, 255, 255, 0.9);
+        }
+
+        .page-text {
+            font-size: clamp(0.85rem, 2.7vw, 1rem);
+            color: #8a2b50;
+            text-align: center;
+            line-height: 1.6;
+            padding: 0 6px;
+            font-weight: 400;
+        }
+
+        .page-text em {
+            font-family: 'Marck Script', cursive;
+            font-size: 1.15em;
+            color: #d63384;
+            font-style: normal;
+        }
+
+        /* ===== СТРАНИЦА-ПРЕДУПРЕЖДЕНИЕ ===== */
+        .warning-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 22px;
+            text-align: center;
+            padding: 35px 25px;
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-radius: 28px;
+            box-shadow: 0 20px 55px rgba(214, 51, 132, 0.3),
+                        0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+            max-width: 460px;
+            border: 2px dashed rgba(214, 51, 132, 0.35);
+        }
+
+        .warning-emoji {
+            font-size: 3rem;
+            animation: pulse 2s ease-in-out infinite;
+            line-height: 1;
+        }
+
+        .warning-title {
+            font-family: 'Marck Script', cursive;
+            font-size: clamp(1.6rem, 5.5vw, 2.2rem);
+            color: #c2185b;
+            line-height: 1.3;
+            text-shadow: 1px 1px 10px rgba(255, 255, 255, 0.9);
+        }
+
+        .warning-text {
+            font-size: clamp(0.9rem, 3vw, 1.05rem);
+            color: #8a2b50;
+            line-height: 1.7;
+        }
+
+        .warning-hint {
+            font-family: 'Marck Script', cursive;
+            font-size: 1.15rem;
+            color: #d63384;
+            margin-top: 5px;
+            animation: pulse 2.5s ease-in-out infinite;
+        }
+
+        /* Финальная страница */
+        .final-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            text-align: center;
+            padding: 35px 28px;
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-radius: 28px;
+            box-shadow: 0 20px 55px rgba(214, 51, 132, 0.3),
+                        0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+            max-width: 480px;
+        }
+
+        .final-page h2 {
+            font-family: 'Marck Script', cursive;
+            font-size: clamp(1.7rem, 5.5vw, 2.3rem);
+            color: #c2185b;
+            text-shadow: 1px 1px 10px rgba(255, 255, 255, 0.9);
+        }
+
+        .final-page p {
+            font-size: clamp(0.9rem, 3vw, 1.05rem);
+            color: #8a2b50;
+            line-height: 1.7;
+        }
+
+        .final-page .big-hearts {
+            font-size: 2.2rem;
+            animation: pulse 2s ease-in-out infinite;
+            letter-spacing: 6px;
+        }
+
+        /* ===== УПРАВЛЕНИЕ ===== */
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+            flex-shrink: 0;
+            z-index: 20;
+        }
+
+        .nav-btn {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: #d63384;
+            font-size: 1.6rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(214, 51, 132, 0.25),
+                        0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+            transition: transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.98);
+            transform: scale(1.1);
+            box-shadow: 0 14px 32px rgba(214, 51, 132, 0.4),
+                        0 0 0 1px rgba(255, 255, 255, 1) inset;
+        }
+
+        .nav-btn:active { transform: scale(0.9); }
+        .nav-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+        .dots {
+            display: flex;
+            gap: 7px;
+            align-items: center;
+        }
+
+        .dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: rgba(214, 51, 132, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .dot.active {
+            background: #d63384;
+            width: 24px;
+            border-radius: 6px;
+            box-shadow: 0 0 10px rgba(214, 51, 132, 0.6);
+        }
+
+        .page-counter {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #a13a5e;
+            opacity: 0.8;
+            margin-top: 6px;
+            letter-spacing: 1px;
+        }
+
+        .swipe-hint {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.72rem;
+            color: #a13a5e;
+            opacity: 0.7;
+            z-index: 20;
+            letter-spacing: 1px;
+            animation: fadeHint 3s ease-in-out infinite;
+        }
+
+        @keyframes fadeHint {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.9; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.12); }
+        }
+
+        @media (max-width: 600px) {
+            .book { padding: 10px; }
+            .photo-card { padding: 12px 14px 16px; border-radius: 22px; }
+            .photo-card img { max-height: 32vh; }
+            .nav-btn { width: 48px; height: 48px; font-size: 1.4rem; }
+            .falling-word { font-size: 1.5rem; }
+            .pop-word { font-size: 1.4rem; }
+            .warning-page, .final-page { padding: 25px 18px; }
+        }
+
+        /* Скролл внутри страницы */
+        .page::-webkit-scrollbar { width: 0; }
+    </style>
+</head>
+<body>
+
+    <div class="falling-words-container" id="fallingWords"></div>
+
+    <div class="book">
+        <div class="book-header">
+            <h1>Для Настеньки 💗</h1>
+        </div>
+
+        <div class="pages" id="pages"></div>
+
+        <div class="controls">
+            <button class="nav-btn" id="prevBtn" aria-label="Назад">‹</button>
+            <div class="dots" id="dots"></div>
+            <button class="nav-btn" id="nextBtn" aria-label="Вперёд">›</button>
+        </div>
+
+        <div class="page-counter" id="counter"></div>
+    </div>
+
+    <div class="swipe-hint">← листай →</div>
+
+    <script>
+        // =========================================================
+        //  💌 СТРАНИЦЫ
+        //  type: 'photo' — фото + текст
+        //  type: 'warning' — предупреждение
+        //  type: 'final' — финал
+        // =========================================================
+        const pagesData = [
+            // --- Фото 1 ---
+            {
+                type: 'photo',
+                img: 'https://i.ibb.co/nMnd4PFH/IMG-20261012-020859-152.jpg',
+                title: 'Настенька, ты невероятно красивая ✨',
+                text: 'Каждый раз, когда я смотрю на тебя, у меня внутри что-то тёплое расцветает. Ты — как утреннее солнышко, которое заглядывает в окошко и делает весь день светлым. Твоя красота — не только снаружи, она светится изнутри и согревает всех вокруг.'
+            },
+            // --- Предупреждение 1 ---
+            {
+                type: 'warning',
+                emoji: '🥺💗',
+                title: 'Настюш, ты точно хочешь листать дальше?',
+                text: 'Впереди тебя ждёт столько тёплых слов, что сердечко может не выдержать... Но если ты готова — листай. Я буду рядом на каждой странице.',
+                hint: 'Листай, если не боишься стать самой любимой 💕'
+            },
+            // --- Фото 2 ---
+            {
+                type: 'photo',
+                img: 'https://i.ibb.co/6K7fFr1/IMG-20261012-020903-183.jpg',
+                title: 'С тобой так комфортно и тепло 🌸',
+                text: 'Ты — тот человек, рядом с которым можно просто молчать, и это молчание будет самым уютным на свете. С тобой не нужно притворяться, не нужно играть — ты принимаешь меня таким, какой я есть. И за это я благодарен тебе каждый день.'
+            },
+            // --- Предупреждение 2 ---
+            {
+                type: 'warning',
+                emoji: '🙈💖',
+                title: 'Настенька, а дальше — ещё нежнее...',
+                text: 'Дальше будут слова, которые я бы хотел говорить тебе каждое утро. Ты готова услышать, как сильно ты для меня значишь?',
+                hint: 'Не бойся, тут только любовь 💗'
+            },
+            // --- Фото 3 ---
+            {
+                type: 'photo',
+                img: 'https://i.ibb.co/fdQNf71X/IMG-20261012-020904-381.jpg',
+                title: 'Ты самая добрая на свете 💖',
+                text: 'Настюша, твоя доброта — это что-то невероятное. Ты умеешь согреть одним словом, поддержать одним взглядом, понять без слов. Мир стал бы намного лучше, если бы в нём было больше таких людей, как ты.'
+            },
+            // --- Предупреждение 3 ---
+            {
+                type: 'warning',
+                emoji: '💘✨',
+                title: 'Настенька, ты ещё здесь?',
+                text: 'Если ты читаешь это — значит, ты дошла до середины. А впереди самое главное... То, что я хочу, чтобы ты запомнила навсегда.',
+                hint: 'Ещё чуть-чуть до самого тёплого 💞'
+            },
+            // --- Фото 4 ---
+            {
+                type: 'photo',
+                img: 'https://i.ibb.co/zW1LbWF4/IMG-20261012-020906-109.jpg',
+                title: 'Твоя улыбка согревает сердце 🌷',
+                text: 'Настюшенька, когда ты улыбаешься — у меня внутри всё переворачивается. Твоя улыбка — это то, ради чего хочется просыпаться каждое утро. Она как лучик солнца в пасмурный день — сразу становится теплее и светлее.'
+            },
+            // --- Предупреждение 4 ---
+            {
+                type: 'warning',
+                emoji: '🦋💫',
+                title: 'Настенька, ещё немножко...',
+                text: 'Осталось совсем чуть-чуть. Я обещаю — дальше будет только нежнее и теплее. Ты же не устала от комплиментов? Их для тебя — бесконечно.',
+                hint: 'Листай, тут самое интересное 💗'
+            },
+            // --- Фото 5 ---
+            {
+                type: 'photo',
+                img: 'https://i.ibb.co/DD1yvmyq/IMG-20261012-020906-955.jpg',
+                title: 'Ты — моё вдохновение 💫',
+                text: 'Настюша, благодаря тебе я стал лучше. Ты вдохновляешь меня быть добрее, нежнее, сильнее. Рядом с тобой хочется расти и делать этот мир чуть светлее — хотя бы потому, что ты в нём есть.'
+            },
+            // --- Предупреждение 5 ---
+            {
+                type: 'warning',
+                emoji: '🌹💖',
+                title: 'Настенька, это последнее предупреждение...',
+                text: 'После этой страницы — финал. Но какой финал! Там я скажу тебе то, что говорю сердцем каждый день. Ты готова?',
+                hint: 'Последний шаг — и всё самое важное 💝'
+            },
+            // --- Фото 6 ---
+            {
+                type: 'photo',
+                img: 'https://i.ibb.co/20SyDNJm/IMG-20261012-020907-998.jpg',
+                title: 'Ты — настоящее чудо 🦋',
+                text: 'Настенька, ты — чудо. Настоящее, живое, тёплое. Ты появилась в моей жизни, и она стала ярче, добрее и счастливее. Спасибо тебе за то, что ты просто есть. Ты — самое дорогое, что у меня есть.'
+            },
+            // --- ФИНАЛ ---
+            {
+                type: 'final',
+                title: 'Настенька, ты — моё всё 💗',
+                text: 'Спасибо, что ты есть. Спасибо за каждый твой взгляд, за каждую улыбку, за каждое тёплое слово. Ты делаешь этот мир добрее и красивее просто тем, что в нём находишься. Я тебя очень-очень люблю. И буду любить всегда. Ты — моя самая любимая, самая родная, самая лучшая Настенька на свете. 💕'
+            }
+        ];
+
+        const pagesContainer = document.getElementById('pages');
+        const dotsContainer = document.getElementById('dots');
+        const counterEl = document.getElementById('counter');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        // ===== Создаём страницы =====
+        pagesData.forEach((data, i) => {
+            const page = document.createElement('div');
+            page.className = 'page' + (i === 0 ? ' active' : '');
+
+            if (data.type === 'photo') {
+                page.innerHTML = `
+                    <div class="photo-card">
+                        <img src="${data.img}" alt="Настенька">
+                        <h3 class="page-title">${data.title}</h3>
+                        <p class="page-text">${data.text}</p>
+                    </div>
+                `;
+            } else if (data.type === 'warning') {
+                page.innerHTML = `
+                    <div class="warning-page">
+                        <div class="warning-emoji">${data.emoji}</div>
+                        <h3 class="warning-title">${data.title}</h3>
+                        <p class="warning-text">${data.text}</p>
+                        <p class="warning-hint">${data.hint}</p>
+                    </div>
+                `;
+            } else if (data.type === 'final') {
+                page.innerHTML = `
+                    <div class="final-page">
+                        <h2>${data.title}</h2>
+                        <p>${data.text}</p>
+                        <div class="big-hearts">💕 💗 💕</div>
+                    </div>
+                `;
+            }
+
+            pagesContainer.appendChild(page);
+
+            const dot = document.createElement('div');
+            dot.className = 'dot' + (i === 0 ? ' active' : '');
+            dot.dataset.index = i;
+            dot.addEventListener('click', () => goToPage(i));
+            dotsContainer.appendChild(dot);
+        });
+
+        const allPages = document.querySelectorAll('.page');
+        const allDots = document.querySelectorAll('.dot');
+        const totalPages = allPages.length;
+        let currentPage = 0;
+
+        // ===== Переключение =====
+        function goToPage(index) {
+            if (index < 0 || index >= totalPages || index === currentPage) return;
+
+            const oldPage = allPages[currentPage];
+            const newPage = allPages[index];
+            const direction = index > currentPage ? 'right' : 'left';
+
+            oldPage.classList.remove('active');
+            oldPage.classList.add(direction === 'right' ? 'exit-left' : 'exit-right');
+            setTimeout(() => oldPage.classList.remove('exit-left', 'exit-right'), 600);
+
+            newPage.classList.add('active');
+            currentPage = index;
+
+            celebrate();
+            updateUI();
+        }
+
+        function updateUI() {
+            allDots.forEach((dot, i) => dot.classList.toggle('active', i === currentPage));
+            counterEl.textContent = `${currentPage + 1} / ${totalPages}`;
+            prevBtn.disabled = currentPage === 0;
+            nextBtn.disabled = currentPage === totalPages - 1;
+        }
+
+        prevBtn.addEventListener('click', () => goToPage(currentPage - 1));
+        nextBtn.addEventListener('click', () => goToPage(currentPage + 1));
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') goToPage(currentPage - 1);
+            if (e.key === 'ArrowRight') goToPage(currentPage + 1);
+        });
+
+        // Свайпы
+        let touchStartX = 0;
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        document.addEventListener('touchend', (e) => {
+            const diff = touchStartX - e.changedTouches[0].screenX;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) goToPage(currentPage + 1);
+                else goToPage(currentPage - 1);
+            }
+        }, { passive: true });
+
+        updateUI();
+
+        // =========================================================
+        //  🎉 ВЗРЫВ СЕРДЕЧЕК И ТЁПЛЫЕ СЛОВА
+        // =========================================================
+
+        const popWords = [
+            'Настенька, ты очень красивая 💖',
+            'Настюша, ты комфортная 🌸',
+            'Настя, ты добрая 💗',
+            'Настенька, ты нежная 🌷',
+            'Настюшенька, ты тёплая ☀️',
+            'Настя, ты милая 🎀',
+            'Настенька, ты чудесная ✨',
+            'Настюша, ты искренняя 💫',
+            'Настя, ты заботливая 💕',
+            'Настенька, ты особенная 🌹',
+            'Настюшенька, ты любимая 💞',
+            'Настя, ты счастье 🍀',
+            'Настенька, ты солнышко ☀️',
+            'Настюша, ты вдохновение 🌟',
+            'Настя, ты самая лучшая 💎',
+            'Настенька, ты умница 🦋',
+            'Настюша, ты ангел 👼',
+            'Настя, ты радость 🌈',
+            'Настенька, ты моё чудо 🦄',
+            'Настюшенька, ты прекрасна 🌺',
+            'Настя, ты моя вселенная 🌌',
+            'Настенька, ты лучшая на свете 💝',
+            'Настюша, ты душевная 🌸',
+            'Настя, ты ласковая 💗',
+            'Настенька, ты удивительная ✨',
+            'Настюшенька, ты светлая ☀️',
+            'Настя, ты родная 💖',
+            'Настенька, ты неотразима 💃',
+            'Настюша, ты очаровательна 🌹',
+            'Настя, ты невероятна 💫',
+            'Настенька, ты талантливая 🎨',
+            'Настюшенька, ты умная 🧠',
+            'Настя, ты смелая 🦁',
+            'Настенька, ты сильная 💪',
+            'Настюша, ты нежность 💐',
+            'Настя, ты гармония 🕊️',
+            'Настенька, ты красота 🌸',
+            'Настюшенька, ты цветочек 🌷',
+            'Настя, ты моя звёздочка ⭐',
+            'Настенька, ты самая родная 💗',
+            'Настюша, ты меня вдохновляешь 🌟',
+            'Настя, ты моё сокровище 💎',
+            'Настенька, ты делаешь меня счастливым 💕',
+            'Настюшенька, ты нужна мне 💖',
+            'Настя, ты моё сердце 💓',
+            'Настенька, ты мой мир 🌍',
+            'Настюша, ты — моё всё 💗',
+            'Настенька, я тебя люблю 💘'
+        ];
+
+        const heartEmojis = ['💗', '💕', '💖', '💘', '💝', '🌸', '🌷', '✨', '💞', '💓', '🩷', '❤️', '🌺'];
+
+        function showPopWord(x, y) {
+            const el = document.createElement('div');
+            el.className = 'pop-word';
+            el.textContent = popWords[Math.floor(Math.random() * popWords.length)];
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            el.style.fontSize = (1.4 + Math.random() * 1) + 'rem';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 2600);
+        }
+
+        function heartBurst(x, y, count = 22) {
+            for (let i = 0; i < count; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart-burst';
+                heart.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+                heart.style.left = x + 'px';
+                heart.style.top = y + 'px';
+
+                const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.5;
+                const distance = 100 + Math.random() * 220;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance - 80;
+
+                heart.style.setProperty('--tx', tx + 'px');
+                heart.style.setProperty('--ty', ty + 'px');
+                heart.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+
+                heart.style.fontSize = (1 + Math.random() * 1.8) + 'rem';
+                heart.style.animationDuration = (1.2 + Math.random() * 0.8) + 's';
+                heart.style.animationDelay = (Math.random() * 0.15) + 's';
+
+                document.body.appendChild(heart);
+                setTimeout(() => heart.remove(), 2200);
+            }
+        }
+
+        function celebrate() {
+            const cx = window.innerWidth / 2;
+            const cy = window.innerHeight / 2;
+
+            heartBurst(cx, cy, 30);
+            setTimeout(() => heartBurst(cx * 0.4, cy * 0.7, 12), 120);
+            setTimeout(() => heartBurst(cx * 1.6, cy * 0.7, 12), 220);
+            setTimeout(() => heartBurst(cx, cy * 0.4, 14), 320);
+
+            showPopWord(cx, cy - 20);
+            setTimeout(() => showPopWord(cx * 0.6 + Math.random() * 60, cy + 40), 250);
+            setTimeout(() => showPopWord(cx * 1.4 - Math.random() * 60, cy + 40), 500);
+        }
+
+        // Клик в любом месте — сердечки и слово
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.nav-btn') || e.target.closest('.dot')) return;
+            heartBurst(e.clientX, e.clientY, 14);
+            showPopWord(e.clientX, e.clientY);
+        });
+
+        // ===== ПАДАЮЩИЕ СЛОВА =====
+        const fallingContainer = document.getElementById('fallingWords');
+
+        function createFallingWord() {
+            const word = document.createElement('div');
+            word.className = 'falling-word';
+            word.textContent = popWords[Math.floor(Math.random() * popWords.length)];
+            word.style.left = (Math.random() * 80) + '%';
+
+            const duration = 6 + Math.random() * 5;
+            word.style.animationDuration = duration + 's';
+            word.style.fontSize = (1.3 + Math.random() * 1.2) + 'rem';
+
+            fallingContainer.appendChild(word);
+            setTimeout(() => word.remove(), duration * 1000);
+        }
+
+        function spawnWords() {
+            for (let i = 0; i < 3; i++) {
+                setTimeout(createFallingWord, i * 700);
+            }
+        }
+
+        spawnWords();
+        setInterval(spawnWords, 2800);
+
+        // Плавающие сердечки фона
+        const hearts = ['💗', '💕', '🌸', '✨', '🌷', '💖', '🦋', '💫'];
+
+        function createBgHeart() {
+            const heart = document.createElement('div');
+            heart.className = 'bg-heart';
+            heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+            heart.style.left = Math.random() * 100 + '%';
+            heart.style.fontSize = (1 + Math.random() * 2) + 'rem';
+            const duration = 15 + Math.random() * 15;
+            heart.style.animationDuration = duration + 's';
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), duration * 1000);
+        }
+
+        setInterval(createBgHeart, 1500);
+        for (let i = 0; i < 5; i++) {
+            setTimeout(createBgHeart, i * 800);
+        }
+    </script>
+
+</body>
+  </html>
